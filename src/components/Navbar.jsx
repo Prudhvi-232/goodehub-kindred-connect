@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Home, Heart, Bell, MessageCircle, User, LogOut, Menu, X, Search } from "lucide-react";
 
+<<<<<<< HEAD:src/components/Navbar.tsx
 interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -27,6 +28,9 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
     }
   };
 
+=======
+const Navbar = ({ activeTab, setActiveTab }) => {
+>>>>>>> 396a246bdcf3d27d9816041e122982e53ba99e4d:src/components/Navbar.jsx
   const navItems = [
     { id: "home", label: "Home", icon: Home },
     { id: "help", label: "Donate", icon: Heart },
@@ -37,6 +41,7 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
+<<<<<<< HEAD:src/components/Navbar.tsx
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
@@ -89,6 +94,39 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
               <span className="text-sm text-gray-700 hidden lg:block">
                 {user?.name}
               </span>
+=======
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center space-x-4">
+            <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
+              GoodeHub
+            </div>
+          </div>
+
+          <div className="hidden md:flex items-center space-x-1">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-blue-50 ${
+                  activeTab === item.id
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-gray-600 hover:text-blue-600"
+                }`}
+              >
+                <span className="mr-2">{item.icon}</span>
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <div className="relative hidden md:block">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Search for help opportunities..."
+                className="pl-10 w-64 bg-gray-50 border-gray-200"
+              />
+>>>>>>> 396a246bdcf3d27d9816041e122982e53ba99e4d:src/components/Navbar.jsx
             </div>
             <Button
               onClick={handleLogout}
