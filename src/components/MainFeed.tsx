@@ -7,6 +7,7 @@ import { useState } from "react";
 const MainFeed = () => {
   const [likedPosts, setLikedPosts] = useState<number[]>([]);
 
+  // Only showing completed help posts from people you follow and notable helpers
   const posts = [
     {
       id: 1,
@@ -19,33 +20,40 @@ const MainFeed = () => {
       likes: 24,
       comments: 8,
       points: 150,
-      tags: ["food", "volunteer"]
+      tags: ["food", "volunteer"],
+      isFollowing: true,
+      images: ["photo-1649972904349-6e44c42644a7"]
     },
     {
       id: 2,
       author: "Maria Santos",
       avatar: "👩‍🎓",
-      time: "4 hours ago",
-      type: "help_needed",
-      content: "Looking for volunteers to help with our weekend dog walking program at the animal shelter. We have 20+ dogs that need exercise and socialization. Perfect for animal lovers! 🐕",
-      location: "Happy Paws Shelter",
-      likes: 18,
-      comments: 12,
-      points: 75,
-      tags: ["animals", "weekend"]
+      time: "6 hours ago",
+      type: "help_provided",
+      content: "Spent the morning reading to children at the local library. Their enthusiasm for stories is infectious! Already signed up for next week's session. 📚",
+      location: "City Library",
+      likes: 32,
+      comments: 6,
+      points: 100,
+      tags: ["education", "children"],
+      isFollowing: true,
+      images: ["photo-1581091226825-a6a2a5aee158"]
     },
     {
       id: 3,
-      author: "Community Center",
-      avatar: "🏢",
-      time: "6 hours ago",
-      type: "organization",
-      content: "Thank you to all the volunteers who helped us paint the community center today! We transformed 3 rooms and it looks amazing. Special thanks to the 15 volunteers who showed up! 🎨",
-      location: "Riverside Community Center",
-      likes: 45,
-      comments: 15,
-      points: 200,
-      tags: ["painting", "community"]
+      author: "Community Hero Foundation",
+      avatar: "🏆",
+      time: "1 day ago",
+      type: "help_provided",
+      content: "Our team completed a major cleanup drive at Riverside Park today! Over 200 volunteers joined us to remove 2 tons of litter and planted 50 new trees. Together, we're making our city greener! 🌳",
+      location: "Riverside Park",
+      likes: 156,
+      comments: 28,
+      points: 500,
+      tags: ["environment", "cleanup"],
+      isFollowing: false,
+      isBigshot: true,
+      images: ["photo-1721322800607-8c38375eef04"]
     },
     {
       id: 4,
@@ -53,12 +61,14 @@ const MainFeed = () => {
       avatar: "👨‍🔬",
       time: "1 day ago",
       type: "help_provided",
-      content: "Spent the morning reading to children at the local library. Their enthusiasm for stories is infectious! Already signed up for next week's session. 📚",
-      location: "City Library",
-      likes: 32,
-      comments: 6,
-      points: 100,
-      tags: ["education", "children"]
+      content: "Delivered groceries to 8 elderly neighbors today. Mrs. Johnson's smile when she saw the fresh fruits made my whole week! Small acts, big impact. ❤️",
+      location: "Oak Street Neighborhood",
+      likes: 45,
+      comments: 12,
+      points: 120,
+      tags: ["elderly", "groceries"],
+      isFollowing: true,
+      images: ["photo-1488590528505-98d2b5aba04b"]
     }
   ];
 
@@ -71,21 +81,11 @@ const MainFeed = () => {
   };
 
   const getPostTypeColor = (type: string) => {
-    switch (type) {
-      case "help_provided": return "border-l-green-500 bg-green-50";
-      case "help_needed": return "border-l-blue-500 bg-blue-50";
-      case "organization": return "border-l-purple-500 bg-purple-50";
-      default: return "border-l-gray-500 bg-gray-50";
-    }
+    return "border-l-green-500 bg-green-50";
   };
 
   const getPostTypeLabel = (type: string) => {
-    switch (type) {
-      case "help_provided": return "Help Provided ✅";
-      case "help_needed": return "Help Needed 🆘";
-      case "organization": return "Organization Update 🏢";
-      default: return "Update";
-    }
+    return "Help Provided ✅";
   };
 
   return (
@@ -97,7 +97,7 @@ const MainFeed = () => {
             <span className="text-xl">👩‍💻</span>
           </div>
           <Button variant="outline" className="flex-1 justify-start text-gray-500 hover:bg-blue-50">
-            Share your good deed or ask for help...
+            Share your good deed or inspiring story...
           </Button>
         </div>
         <div className="flex justify-between mt-4 pt-4 border-t">
@@ -113,6 +113,15 @@ const MainFeed = () => {
         </div>
       </Card>
 
+      {/* Feed Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-gray-900">Recent Good Deeds</h2>
+        <div className="flex items-center space-x-2 text-sm text-gray-600">
+          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+          <span>From people you follow and top helpers</span>
+        </div>
+      </div>
+
       {/* Posts Feed */}
       {posts.map((post) => (
         <Card key={post.id} className={`border-l-4 ${getPostTypeColor(post.type)} transition-all hover:shadow-lg`}>
@@ -122,7 +131,15 @@ const MainFeed = () => {
               <div className="flex items-center space-x-3">
                 <div className="text-3xl">{post.avatar}</div>
                 <div>
-                  <h4 className="font-semibold text-gray-900">{post.author}</h4>
+                  <div className="flex items-center space-x-2">
+                    <h4 className="font-semibold text-gray-900">{post.author}</h4>
+                    {post.isFollowing && (
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">Following</span>
+                    )}
+                    {post.isBigshot && (
+                      <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">🏆 Top Helper</span>
+                    )}
+                  </div>
                   <div className="flex items-center text-sm text-gray-600 space-x-2">
                     <Clock className="w-3 h-3" />
                     <span>{post.time}</span>
@@ -142,6 +159,17 @@ const MainFeed = () => {
 
             {/* Post Content */}
             <p className="text-gray-800 mb-4 leading-relaxed">{post.content}</p>
+
+            {/* Post Images */}
+            {post.images && (
+              <div className="mb-4">
+                <img 
+                  src={`https://images.unsplash.com/${post.images[0]}?w=600&h=300&fit=crop`}
+                  alt="Help activity"
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+              </div>
+            )}
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2 mb-4">
@@ -174,12 +202,12 @@ const MainFeed = () => {
                 
                 <button className="flex items-center space-x-2 text-gray-600 hover:text-green-600 transition-colors">
                   <Users className="w-5 h-5" />
-                  <span className="font-medium">Join</span>
+                  <span className="font-medium">Inspire</span>
                 </button>
               </div>
               
               <Button variant="outline" size="sm" className="hover:bg-blue-50">
-                Support
+                Appreciate
               </Button>
             </div>
           </div>

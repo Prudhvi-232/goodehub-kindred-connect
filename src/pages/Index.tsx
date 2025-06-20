@@ -4,9 +4,20 @@ import Navbar from "../components/Navbar";
 import LeftSidebar from "../components/LeftSidebar";
 import RightSidebar from "../components/RightSidebar";
 import MainFeed from "../components/MainFeed";
+import HelpDonateFeed from "../components/HelpDonateFeed";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
+
+  const renderMainContent = () => {
+    switch (activeTab) {
+      case "help":
+        return <HelpDonateFeed />;
+      case "home":
+      default:
+        return <MainFeed />;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -21,7 +32,7 @@ const Index = () => {
 
           {/* Main Content */}
           <div className="lg:col-span-6">
-            <MainFeed />
+            {renderMainContent()}
           </div>
 
           {/* Right Sidebar */}
