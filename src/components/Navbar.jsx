@@ -3,12 +3,7 @@ import { Search, MessageSquare, Bell, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-interface NavbarProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-}
-
-const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
+const Navbar = ({ activeTab, setActiveTab }) => {
   const navItems = [
     { id: "home", label: "Home", icon: "🏠" },
     { id: "help", label: "Help/Donate", icon: "🤝" },
@@ -20,14 +15,12 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <div className="flex items-center space-x-4">
             <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
               GoodeHub
             </div>
           </div>
 
-          {/* Navigation Items */}
           <div className="hidden md:flex items-center space-x-1">
             {navItems.map((item) => (
               <button
@@ -45,7 +38,6 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
             ))}
           </div>
 
-          {/* Search and Actions */}
           <div className="flex items-center space-x-4">
             <div className="relative hidden md:block">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
