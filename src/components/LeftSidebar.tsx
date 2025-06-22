@@ -18,6 +18,7 @@ const LeftSidebar = () => {
 
   return (
     <div className="space-y-4">
+      {/* User Profile Card */}
       <Card className="p-6 bg-gradient-to-br from-white to-blue-50 border-blue-100">
         <div className="text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -42,6 +43,7 @@ const LeftSidebar = () => {
         </div>
       </Card>
 
+      {/* Recent Activity */}
       <Card className="p-4">
         <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
           <Calendar className="w-4 h-4 mr-2 text-blue-600" />

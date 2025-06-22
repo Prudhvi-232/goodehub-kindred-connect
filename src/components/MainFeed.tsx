@@ -5,8 +5,9 @@ import { Heart, MessageSquare, Users, MapPin, Clock } from "lucide-react";
 import { useState } from "react";
 
 const MainFeed = () => {
-  const [likedPosts, setLikedPosts] = useState([]);
+  const [likedPosts, setLikedPosts] = useState<number[]>([]);
 
+  // Only showing completed help posts from people you follow and notable helpers
   const posts = [
     {
       id: 1,
@@ -71,7 +72,7 @@ const MainFeed = () => {
     }
   ];
 
-  const toggleLike = (postId) => {
+  const toggleLike = (postId: number) => {
     setLikedPosts(prev => 
       prev.includes(postId) 
         ? prev.filter(id => id !== postId)
@@ -79,16 +80,17 @@ const MainFeed = () => {
     );
   };
 
-  const getPostTypeColor = (type) => {
+  const getPostTypeColor = (type: string) => {
     return "border-l-green-500 bg-green-50";
   };
 
-  const getPostTypeLabel = (type) => {
+  const getPostTypeLabel = (type: string) => {
     return "Help Provided ✅";
   };
 
   return (
     <div className="space-y-6">
+      {/* Create Post */}
       <Card className="p-4">
         <div className="flex items-center space-x-4">
           <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center">
@@ -111,6 +113,7 @@ const MainFeed = () => {
         </div>
       </Card>
 
+      {/* Feed Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-900">Recent Good Deeds</h2>
         <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -119,9 +122,11 @@ const MainFeed = () => {
         </div>
       </div>
 
+      {/* Posts Feed */}
       {posts.map((post) => (
         <Card key={post.id} className={`border-l-4 ${getPostTypeColor(post.type)} transition-all hover:shadow-lg`}>
           <div className="p-6">
+            {/* Post Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <div className="text-3xl">{post.avatar}</div>
@@ -152,8 +157,10 @@ const MainFeed = () => {
               </div>
             </div>
 
+            {/* Post Content */}
             <p className="text-gray-800 mb-4 leading-relaxed">{post.content}</p>
 
+            {/* Post Images */}
             {post.images && (
               <div className="mb-4">
                 <img 
@@ -164,6 +171,7 @@ const MainFeed = () => {
               </div>
             )}
 
+            {/* Tags */}
             <div className="flex flex-wrap gap-2 mb-4">
               {post.tags.map((tag, index) => (
                 <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
@@ -172,6 +180,7 @@ const MainFeed = () => {
               ))}
             </div>
 
+            {/* Post Actions */}
             <div className="flex items-center justify-between pt-4 border-t border-gray-100">
               <div className="flex items-center space-x-6">
                 <button 

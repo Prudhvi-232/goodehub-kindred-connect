@@ -35,7 +35,7 @@ const RightSidebar = () => {
     },
   ];
 
-  const getDifficultyColor = (difficulty) => {
+  const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "Easy": return "bg-green-100 text-green-700";
       case "Medium": return "bg-yellow-100 text-yellow-700";
@@ -44,7 +44,7 @@ const RightSidebar = () => {
     }
   };
 
-  const getUrgencyColor = (urgency) => {
+  const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
       case "High": return "border-l-red-500";
       case "Medium": return "border-l-yellow-500";
@@ -55,6 +55,7 @@ const RightSidebar = () => {
 
   return (
     <div className="space-y-4">
+      {/* Monthly Leaderboard */}
       <Card className="p-4">
         <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
           <Crown className="w-4 h-4 mr-2 text-yellow-500" />
@@ -88,6 +89,7 @@ const RightSidebar = () => {
         </Button>
       </Card>
 
+      {/* Help Opportunities */}
       <Card className="p-4">
         <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
           <TrendingUp className="w-4 h-4 mr-2 text-blue-600" />
