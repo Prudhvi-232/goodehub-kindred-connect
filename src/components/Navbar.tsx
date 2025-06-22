@@ -1,7 +1,9 @@
 
-import { Search, MessageSquare, Bell, User } from "lucide-react";
+import { Search, MessageSquare, Bell, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface NavbarProps {
   activeTab: string;
@@ -9,12 +11,31 @@ interface NavbarProps {
 }
 
 const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
+  const { signOut, user } = useAuth();
+  const { toast } = useToast();
+
   const navItems = [
     { id: "home", label: "Home", icon: "🏠" },
     { id: "help", label: "Help/Donate", icon: "🤝" },
     { id: "leaderboard", label: "Leaderboard", icon: "🏆" },
     { id: "location", label: "Map", icon: "📍" },
   ];
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -63,9 +84,21 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
               <Bell className="w-5 h-5" />
             </Button>
             
-            <Button variant="ghost" size="sm">
-              <User className="w-5 h-5" />
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" size="sm">
+                <User className="w-5 h-5" />
+              </Button>
+              {user && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleSignOut}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <LogOut className="w-5 h-5" />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
