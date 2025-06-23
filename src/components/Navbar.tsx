@@ -1,5 +1,5 @@
 
-import { Search, MessageSquare, Bell, User, LogOut } from "lucide-react";
+import { Search, MessageSquare, Bell, User, LogOut, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,7 +18,7 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
     { id: "home", label: "Home", icon: "🏠" },
     { id: "help", label: "Help/Donate", icon: "🤝" },
     { id: "leaderboard", label: "Leaderboard", icon: "🏆" },
-    { id: "chat", label: "Chat", icon: "💬" },
+    { id: "donation", label: "Donations", icon: "💝" },
     { id: "location", label: "Map", icon: "📍" },
   ];
 
@@ -44,8 +44,8 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center space-x-4">
-            <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-              CodeHub
+            <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+              Goodhub
             </div>
           </div>
 
@@ -55,10 +55,10 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-blue-50 ${
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-green-50 ${
                   activeTab === item.id
-                    ? "text-blue-600 bg-blue-50"
-                    : "text-gray-600 hover:text-blue-600"
+                    ? "text-green-600 bg-green-50"
+                    : "text-gray-600 hover:text-green-600"
                 }`}
               >
                 <span className="mr-2">{item.icon}</span>
@@ -77,7 +77,12 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
               />
             </div>
             
-            <Button variant="ghost" size="sm">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setActiveTab("chat")}
+              className={activeTab === "chat" ? "bg-green-50 text-green-600" : ""}
+            >
               <MessageSquare className="w-5 h-5" />
             </Button>
             

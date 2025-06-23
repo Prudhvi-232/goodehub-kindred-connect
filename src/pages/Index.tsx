@@ -8,6 +8,8 @@ import HelpDonateFeed from "../components/HelpDonateFeed";
 import LeaderboardPage from "../components/LeaderboardPage";
 import ChatPage from "../components/ChatPage";
 import ProfilePage from "../components/ProfilePage";
+import MapPage from "../components/MapPage";
+import DonationPage from "../components/DonationPage";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -18,6 +20,10 @@ const Index = () => {
         return <HelpDonateFeed />;
       case "leaderboard":
         return <LeaderboardPage />;
+      case "donation":
+        return <DonationPage />;
+      case "location":
+        return <MapPage />;
       case "chat":
         return <ChatPage />;
       case "profile":
@@ -29,7 +35,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50">
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
       
       <div className="max-w-7xl mx-auto px-4 py-6">
