@@ -1,7 +1,8 @@
 
-import { Search, MessageSquare, Bell, User, LogOut, Map } from "lucide-react";
+import { Search, MessageSquare, Bell, User, LogOut, Map, Users, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -80,14 +81,34 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
             <Button 
               variant="ghost" 
               size="sm"
+              onClick={() => setActiveTab("friends")}
+              className={activeTab === "friends" ? "bg-green-50 text-green-600" : ""}
+            >
+              <Users className="w-5 h-5" />
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm"
               onClick={() => setActiveTab("chat")}
               className={activeTab === "chat" ? "bg-green-50 text-green-600" : ""}
             >
               <MessageSquare className="w-5 h-5" />
             </Button>
             
-            <Button variant="ghost" size="sm">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setActiveTab("notifications")}
+              className={`relative ${activeTab === "notifications" ? "bg-green-50 text-green-600" : ""}`}
+            >
               <Bell className="w-5 h-5" />
+              <Badge 
+                variant="destructive" 
+                className="absolute -top-1 -right-1 w-5 h-5 text-xs flex items-center justify-center p-0"
+              >
+                3
+              </Badge>
             </Button>
             
             <div className="flex items-center space-x-2">

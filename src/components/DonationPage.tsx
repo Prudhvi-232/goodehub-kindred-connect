@@ -81,28 +81,30 @@ const DonationPage = () => {
                   These organizations have been vetted for transparency and impact. Your donations go directly to their verified programs.
                 </p>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-6">
                   {trustedOrganizations.map((org, index) => (
                     <Card key={index} className="hover:shadow-md transition-shadow border-gray-200">
-                      <CardContent className="p-4">
-                        <div className="flex items-start space-x-3">
-                          <div className="text-3xl">{org.image}</div>
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-gray-800">{org.name}</h4>
-                            <p className="text-sm text-gray-600 mb-2">{org.description}</p>
-                            <div className="flex items-center justify-between mb-3">
-                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                {org.category}
-                              </span>
+                      <CardContent className="p-6">
+                        <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-4">
+                          <div className="text-4xl flex-shrink-0">{org.image}</div>
+                          <div className="flex-1 w-full">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
+                              <h4 className="font-semibold text-gray-800 text-lg mb-1 sm:mb-0">{org.name}</h4>
                               <span className="text-sm text-yellow-600">{org.rating}</span>
                             </div>
-                            <div className="flex space-x-2">
+                            <p className="text-sm text-gray-600 mb-3">{org.description}</p>
+                            <div className="flex items-center justify-between mb-4">
+                              <span className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+                                {org.category}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
                               {[25, 50, 100].map((amount) => (
-                                <Button key={amount} size="sm" variant="outline" className="text-xs">
+                                <Button key={amount} size="sm" variant="outline" className="text-xs px-3 py-1">
                                   ${amount}
                                 </Button>
                               ))}
-                              <Button size="sm" className="bg-green-600 hover:bg-green-700 text-xs">
+                              <Button size="sm" className="bg-green-600 hover:bg-green-700 text-xs px-3 py-1">
                                 Custom
                               </Button>
                             </div>

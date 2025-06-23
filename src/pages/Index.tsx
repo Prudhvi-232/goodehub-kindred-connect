@@ -10,6 +10,8 @@ import ChatPage from "../components/ChatPage";
 import ProfilePage from "../components/ProfilePage";
 import MapPage from "../components/MapPage";
 import DonationPage from "../components/DonationPage";
+import FriendsList from "../components/FriendsList";
+import NotificationsList from "../components/NotificationsList";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -28,6 +30,10 @@ const Index = () => {
         return <ChatPage />;
       case "profile":
         return <ProfilePage />;
+      case "friends":
+        return <FriendsList />;
+      case "notifications":
+        return <NotificationsList />;
       case "home":
       default:
         return <MainFeed />;
