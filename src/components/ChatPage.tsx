@@ -62,26 +62,35 @@ const ChatPage = () => {
 
   const fetchFriends = async () => {
     try {
-      const { data, error } = await supabase
+      // First get the friend relationships
+      const { data: friendships, error: friendshipError } = await supabase
         .from('friends')
-        .select(`
-          friend_id,
-          profiles!friends_friend_id_fkey(
-            id,
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('friend_id')
         .eq('user_id', user?.id)
         .eq('status', 'accepted');
 
-      if (error) throw error;
+      if (friendshipError) throw friendshipError;
 
-      const friendsList = data?.map(friend => ({
-        id: friend.profiles.id,
-        full_name: friend.profiles.full_name || 'Anonymous',
-        avatar_url: friend.profiles.avatar_url || '',
-        user_id: friend.friend_id
+      if (!friendships || friendships.length === 0) {
+        setFriends([]);
+        setLoading(false);
+        return;
+      }
+
+      // Then get the profile data for those friends
+      const friendIds = friendships.map(f => f.friend_id);
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url')
+        .in('id', friendIds);
+
+      if (profilesError) throw profilesError;
+
+      const friendsList = profiles?.map(profile => ({
+        id: profile.id,
+        full_name: profile.full_name || 'Anonymous',
+        avatar_url: profile.avatar_url || '',
+        user_id: profile.id
       })) || [];
 
       setFriends(friendsList);
@@ -174,24 +183,35 @@ const ChatPage = () => {
     if (!activeChat) return;
 
     try {
-      const { data, error } = await supabase
+      // First get messages
+      const { data: messagesData, error: messagesError } = await supabase
         .from('messages')
-        .select(`
-          id,
-          content,
-          sender_id,
-          created_at,
-          profiles!messages_sender_id_fkey(full_name)
-        `)
+        .select('id, content, sender_id, created_at')
         .eq('room_id', activeChat.id)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (messagesError) throw messagesError;
 
-      const messagesWithSender = data?.map(msg => ({
+      if (!messagesData || messagesData.length === 0) {
+        setMessages([]);
+        return;
+      }
+
+      // Then get sender profiles
+      const senderIds = [...new Set(messagesData.map(msg => msg.sender_id))];
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', senderIds);
+
+      if (profilesError) throw profilesError;
+
+      const profilesMap = new Map(profiles?.map(p => [p.id, p.full_name]) || []);
+
+      const messagesWithSender = messagesData.map(msg => ({
         ...msg,
-        sender_name: msg.profiles?.full_name || 'Anonymous'
-      })) || [];
+        sender_name: profilesMap.get(msg.sender_id) || 'Anonymous'
+      }));
 
       setMessages(messagesWithSender);
     } catch (error) {

@@ -33,47 +33,74 @@ const LeaderboardPage = () => {
   const fetchLeaderboards = async () => {
     try {
       // Fetch overall leaderboard
-      const { data: overallData, error: overallError } = await supabase
+      const { data: overallPointsData, error: overallError } = await supabase
         .from('user_points')
-        .select(`
-          user_id,
-          points,
-          rank,
-          profiles!inner(full_name, avatar_url)
-        `)
+        .select('user_id, points, rank')
         .order('points', { ascending: false })
         .limit(50);
 
       if (overallError) throw overallError;
 
+      if (overallPointsData && overallPointsData.length > 0) {
+        // Get profiles for the users
+        const userIds = overallPointsData.map(entry => entry.user_id);
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url')
+          .in('id', userIds);
+
+        if (profilesError) throw profilesError;
+
+        const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+        
+        const overallData = overallPointsData.map(entry => ({
+          ...entry,
+          profile: profilesMap.get(entry.user_id)
+        }));
+
+        setOverallLeaderboard(overallData);
+      }
+
       // Fetch friends leaderboard
-      const { data: friendsData, error: friendsError } = await supabase
+      const { data: friendships, error: friendsError } = await supabase
         .from('friends')
-        .select(`
-          friend_id,
-          user_points!inner(
-            user_id,
-            points,
-            rank,
-            profiles!inner(full_name, avatar_url)
-          )
-        `)
+        .select('friend_id')
         .eq('user_id', user?.id)
         .eq('status', 'accepted');
 
       if (friendsError) throw friendsError;
 
-      setOverallLeaderboard(overallData || []);
-      
-      // Process friends data
-      const friendsLeaderboardData = friendsData?.map(friend => ({
-        user_id: friend.user_points.user_id,
-        points: friend.user_points.points,
-        rank: friend.user_points.rank,
-        profile: friend.user_points.profiles
-      })).sort((a, b) => b.points - a.points) || [];
+      if (friendships && friendships.length > 0) {
+        const friendIds = friendships.map(f => f.friend_id);
+        
+        // Get points for friends
+        const { data: friendsPointsData, error: friendsPointsError } = await supabase
+          .from('user_points')
+          .select('user_id, points, rank')
+          .in('user_id', friendIds)
+          .order('points', { ascending: false });
 
-      setFriendsLeaderboard(friendsLeaderboardData);
+        if (friendsPointsError) throw friendsPointsError;
+
+        if (friendsPointsData && friendsPointsData.length > 0) {
+          // Get profiles for friends
+          const { data: friendProfiles, error: friendProfilesError } = await supabase
+            .from('profiles')
+            .select('id, full_name, avatar_url')
+            .in('id', friendIds);
+
+          if (friendProfilesError) throw friendProfilesError;
+
+          const friendProfilesMap = new Map(friendProfiles?.map(p => [p.id, p]) || []);
+          
+          const friendsData = friendsPointsData.map(entry => ({
+            ...entry,
+            profile: friendProfilesMap.get(entry.user_id)
+          }));
+
+          setFriendsLeaderboard(friendsData);
+        }
+      }
     } catch (error) {
       console.error('Error fetching leaderboards:', error);
       toast({
