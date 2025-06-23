@@ -18,6 +18,7 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
     { id: "home", label: "Home", icon: "🏠" },
     { id: "help", label: "Help/Donate", icon: "🤝" },
     { id: "leaderboard", label: "Leaderboard", icon: "🏆" },
+    { id: "chat", label: "Chat", icon: "💬" },
     { id: "location", label: "Map", icon: "📍" },
   ];
 
@@ -44,7 +45,7 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
           {/* Logo */}
           <div className="flex items-center space-x-4">
             <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-              GoodeHub
+              CodeHub
             </div>
           </div>
 
@@ -85,7 +86,11 @@ const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
             </Button>
             
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="sm">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setActiveTab("profile")}
+              >
                 <User className="w-5 h-5" />
               </Button>
               {user && (

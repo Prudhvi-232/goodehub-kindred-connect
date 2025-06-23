@@ -5,6 +5,9 @@ import LeftSidebar from "../components/LeftSidebar";
 import RightSidebar from "../components/RightSidebar";
 import MainFeed from "../components/MainFeed";
 import HelpDonateFeed from "../components/HelpDonateFeed";
+import LeaderboardPage from "../components/LeaderboardPage";
+import ChatPage from "../components/ChatPage";
+import ProfilePage from "../components/ProfilePage";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -13,6 +16,12 @@ const Index = () => {
     switch (activeTab) {
       case "help":
         return <HelpDonateFeed />;
+      case "leaderboard":
+        return <LeaderboardPage />;
+      case "chat":
+        return <ChatPage />;
+      case "profile":
+        return <ProfilePage />;
       case "home":
       default:
         return <MainFeed />;
