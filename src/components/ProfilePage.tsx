@@ -3,13 +3,12 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Edit, Save, Trophy, Users, MessageSquare, MapPin, Calendar, Phone } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import { User, Edit, Save, X, MapPin, Phone, Calendar, Briefcase } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface UserProfile {
@@ -22,40 +21,22 @@ interface UserProfile {
   phone: string;
   date_of_birth: string;
   occupation: string;
-}
-
-interface UserStats {
-  points: number;
-  rank: number;
-  friendsCount: number;
-  messagesCount: number;
+  created_at: string;
+  updated_at: string;
 }
 
 const ProfilePage = () => {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [stats, setStats] = useState<UserStats>({
-    points: 0,
-    rank: 0,
-    friendsCount: 0,
-    messagesCount: 0
-  });
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({
-    full_name: "",
-    avatar_url: "",
-    bio: "",
-    location: "",
-    phone: "",
-    date_of_birth: "",
-    occupation: ""
-  });
-  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    fetchProfile();
-    fetchStats();
+    if (user) {
+      fetchProfile();
+    }
   }, [user]);
 
   const fetchProfile = async () => {
@@ -68,16 +49,23 @@ const ProfilePage = () => {
 
       if (error) throw error;
 
-      setProfile(data);
-      setEditData({
-        full_name: data.full_name || "",
-        avatar_url: data.avatar_url || "",
-        bio: data.bio || "",
-        location: data.location || "",
-        phone: data.phone || "",
-        date_of_birth: data.date_of_birth || "",
-        occupation: data.occupation || ""
-      });
+      // Ensure all required fields exist with default values
+      const profileData: UserProfile = {
+        id: data.id,
+        full_name: data.full_name || '',
+        email: data.email || '',
+        avatar_url: data.avatar_url || '',
+        bio: data.bio || '',
+        location: data.location || '',
+        phone: data.phone || '',
+        date_of_birth: data.date_of_birth || '',
+        occupation: data.occupation || '',
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+
+      setProfile(profileData);
+      setEditedProfile(profileData);
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast({
@@ -85,74 +73,42 @@ const ProfilePage = () => {
         description: "Failed to load profile",
         variant: "destructive",
       });
-    }
-  };
-
-  const fetchStats = async () => {
-    try {
-      // Fetch points and rank
-      const { data: pointsData } = await supabase
-        .from('user_points')
-        .select('points, rank')
-        .eq('user_id', user?.id)
-        .single();
-
-      // Fetch friends count
-      const { count: friendsCount } = await supabase
-        .from('friends')
-        .select('*', { count: 'exact' })
-        .eq('user_id', user?.id)
-        .eq('status', 'accepted');
-
-      // Fetch messages count
-      const { count: messagesCount } = await supabase
-        .from('messages')
-        .select('*', { count: 'exact' })
-        .eq('sender_id', user?.id);
-
-      setStats({
-        points: pointsData?.points || 0,
-        rank: pointsData?.rank || 0,
-        friendsCount: friendsCount || 0,
-        messagesCount: messagesCount || 0
-      });
-    } catch (error) {
-      console.error('Error fetching stats:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleEdit = () => {
+    setEditing(true);
+    setEditedProfile(profile);
+  };
+
+  const handleCancel = () => {
+    setEditing(false);
+    setEditedProfile(profile);
+  };
+
   const handleSave = async () => {
+    if (!editedProfile) return;
+
     try {
       const { error } = await supabase
         .from('profiles')
         .update({
-          full_name: editData.full_name,
-          avatar_url: editData.avatar_url,
-          bio: editData.bio,
-          location: editData.location,
-          phone: editData.phone,
-          date_of_birth: editData.date_of_birth,
-          occupation: editData.occupation,
+          full_name: editedProfile.full_name,
+          bio: editedProfile.bio,
+          location: editedProfile.location,
+          phone: editedProfile.phone,
+          date_of_birth: editedProfile.date_of_birth,
+          occupation: editedProfile.occupation,
           updated_at: new Date().toISOString()
         })
         .eq('id', user?.id);
 
       if (error) throw error;
 
-      setProfile(prev => prev ? {
-        ...prev,
-        full_name: editData.full_name,
-        avatar_url: editData.avatar_url,
-        bio: editData.bio,
-        location: editData.location,
-        phone: editData.phone,
-        date_of_birth: editData.date_of_birth,
-        occupation: editData.occupation
-      } : null);
-
-      setIsEditing(false);
+      setProfile(editedProfile);
+      setEditing(false);
       toast({
         title: "Success",
         description: "Profile updated successfully",
@@ -167,6 +123,15 @@ const ProfilePage = () => {
     }
   };
 
+  const handleInputChange = (field: keyof UserProfile, value: string) => {
+    if (editedProfile) {
+      setEditedProfile({
+        ...editedProfile,
+        [field]: value
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -177,198 +142,149 @@ const ProfilePage = () => {
     );
   }
 
+  const currentProfile = editing ? editedProfile : profile;
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center space-x-2">
               <User className="w-6 h-6" />
               <span>My Profile</span>
-            </div>
-            {!isEditing ? (
-              <Button variant="outline" onClick={() => setIsEditing(true)}>
+            </CardTitle>
+            {!editing ? (
+              <Button onClick={handleEdit} variant="outline" size="sm">
                 <Edit className="w-4 h-4 mr-2" />
-                Edit
+                Edit Profile
               </Button>
             ) : (
-              <div className="space-x-2">
-                <Button variant="outline" onClick={() => setIsEditing(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSave}>
+              <div className="flex space-x-2">
+                <Button onClick={handleSave} size="sm">
                   <Save className="w-4 h-4 mr-2" />
                   Save
                 </Button>
+                <Button onClick={handleCancel} variant="outline" size="sm">
+                  <X className="w-4 h-4 mr-2" />
+                  Cancel
+                </Button>
               </div>
             )}
-          </CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col lg:flex-row items-start space-y-6 lg:space-y-0 lg:space-x-6">
-            <Avatar className="w-32 h-32 mx-auto lg:mx-0">
-              <AvatarImage src={profile?.avatar_url} />
-              <AvatarFallback className="text-3xl">
-                {profile?.full_name?.charAt(0) || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 w-full space-y-4">
-              {isEditing ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="full_name">Full Name</Label>
-                    <Input
-                      id="full_name"
-                      value={editData.full_name}
-                      onChange={(e) => setEditData(prev => ({
-                        ...prev,
-                        full_name: e.target.value
-                      }))}
-                      placeholder="Enter your full name"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="occupation">Occupation</Label>
-                    <Input
-                      id="occupation"
-                      value={editData.occupation}
-                      onChange={(e) => setEditData(prev => ({
-                        ...prev,
-                        occupation: e.target.value
-                      }))}
-                      placeholder="Enter your occupation"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="location">Location</Label>
-                    <Input
-                      id="location"
-                      value={editData.location}
-                      onChange={(e) => setEditData(prev => ({
-                        ...prev,
-                        location: e.target.value
-                      }))}
-                      placeholder="Enter your location"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      value={editData.phone}
-                      onChange={(e) => setEditData(prev => ({
-                        ...prev,
-                        phone: e.target.value
-                      }))}
-                      placeholder="Enter your phone number"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="date_of_birth">Date of Birth</Label>
-                    <Input
-                      id="date_of_birth"
-                      type="date"
-                      value={editData.date_of_birth}
-                      onChange={(e) => setEditData(prev => ({
-                        ...prev,
-                        date_of_birth: e.target.value
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="avatar_url">Avatar URL</Label>
-                    <Input
-                      id="avatar_url"
-                      value={editData.avatar_url}
-                      onChange={(e) => setEditData(prev => ({
-                        ...prev,
-                        avatar_url: e.target.value
-                      }))}
-                      placeholder="Enter avatar image URL"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label htmlFor="bio">Bio</Label>
-                    <Textarea
-                      id="bio"
-                      value={editData.bio}
-                      onChange={(e) => setEditData(prev => ({
-                        ...prev,
-                        bio: e.target.value
-                      }))}
-                      placeholder="Tell us about yourself"
-                      rows={3}
-                    />
-                  </div>
-                </div>
+          <div className="space-y-6">
+            {/* Profile Header */}
+            <div className="flex items-center space-x-6">
+              <Avatar className="w-24 h-24">
+                <AvatarImage src={currentProfile?.avatar_url} />
+                <AvatarFallback className="text-2xl">
+                  {currentProfile?.full_name?.charAt(0) || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                {editing ? (
+                  <Input
+                    value={editedProfile?.full_name || ''}
+                    onChange={(e) => handleInputChange('full_name', e.target.value)}
+                    placeholder="Full Name"
+                    className="text-xl font-bold mb-2"
+                  />
+                ) : (
+                  <h2 className="text-2xl font-bold">{currentProfile?.full_name}</h2>
+                )}
+                <p className="text-gray-600">{currentProfile?.email}</p>
+                <Badge variant="secondary" className="mt-2">
+                  Member since {new Date(currentProfile?.created_at || '').toLocaleDateString()}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Bio Section */}
+            <div>
+              <h3 className="font-semibold mb-2">About Me</h3>
+              {editing ? (
+                <Textarea
+                  value={editedProfile?.bio || ''}
+                  onChange={(e) => handleInputChange('bio', e.target.value)}
+                  placeholder="Tell us about yourself..."
+                  rows={3}
+                />
               ) : (
-                <div className="space-y-4">
-                  <h2 className="text-3xl font-bold">{profile?.full_name || 'Anonymous User'}</h2>
-                  <p className="text-gray-600">{profile?.email}</p>
-                  {profile?.bio && (
-                    <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">{profile.bio}</p>
-                  )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    {profile?.occupation && (
-                      <div className="flex items-center space-x-2">
-                        <User className="w-4 h-4 text-gray-500" />
-                        <span>{profile.occupation}</span>
-                      </div>
-                    )}
-                    {profile?.location && (
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="w-4 h-4 text-gray-500" />
-                        <span>{profile.location}</span>
-                      </div>
-                    )}
-                    {profile?.phone && (
-                      <div className="flex items-center space-x-2">
-                        <Phone className="w-4 h-4 text-gray-500" />
-                        <span>{profile.phone}</span>
-                      </div>
-                    )}
-                    {profile?.date_of_birth && (
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4 text-gray-500" />
-                        <span>{new Date(profile.date_of_birth).toLocaleDateString()}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500 pt-2 border-t">
-                    <span>Member since {new Date(user?.created_at || '').toLocaleDateString()}</span>
-                  </div>
-                </div>
+                <p className="text-gray-700">{currentProfile?.bio || 'No bio added yet.'}</p>
               )}
             </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Statistics</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <Trophy className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-blue-600">{stats.points}</div>
-              <div className="text-sm text-gray-600">Points</div>
-            </div>
-            <div className="text-center p-4 bg-yellow-50 rounded-lg">
-              <Trophy className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-yellow-600">#{stats.rank || 'N/A'}</div>
-              <div className="text-sm text-gray-600">Rank</div>
-            </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <Users className="w-8 h-8 text-green-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-green-600">{stats.friendsCount}</div>
-              <div className="text-sm text-gray-600">Friends</div>
-            </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <MessageSquare className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-purple-600">{stats.messagesCount}</div>
-              <div className="text-sm text-gray-600">Messages</div>
+            {/* Personal Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-semibold mb-2 flex items-center">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  Location
+                </h3>
+                {editing ? (
+                  <Input
+                    value={editedProfile?.location || ''}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    placeholder="Your location"
+                  />
+                ) : (
+                  <p className="text-gray-700">{currentProfile?.location || 'Not specified'}</p>
+                )}
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2 flex items-center">
+                  <Phone className="w-4 h-4 mr-2" />
+                  Phone
+                </h3>
+                {editing ? (
+                  <Input
+                    value={editedProfile?.phone || ''}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    placeholder="Your phone number"
+                  />
+                ) : (
+                  <p className="text-gray-700">{currentProfile?.phone || 'Not specified'}</p>
+                )}
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2 flex items-center">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Date of Birth
+                </h3>
+                {editing ? (
+                  <Input
+                    type="date"
+                    value={editedProfile?.date_of_birth || ''}
+                    onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
+                  />
+                ) : (
+                  <p className="text-gray-700">
+                    {currentProfile?.date_of_birth 
+                      ? new Date(currentProfile.date_of_birth).toLocaleDateString()
+                      : 'Not specified'
+                    }
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2 flex items-center">
+                  <Briefcase className="w-4 h-4 mr-2" />
+                  Occupation
+                </h3>
+                {editing ? (
+                  <Input
+                    value={editedProfile?.occupation || ''}
+                    onChange={(e) => handleInputChange('occupation', e.target.value)}
+                    placeholder="Your occupation"
+                  />
+                ) : (
+                  <p className="text-gray-700">{currentProfile?.occupation || 'Not specified'}</p>
+                )}
+              </div>
             </div>
           </div>
         </CardContent>
