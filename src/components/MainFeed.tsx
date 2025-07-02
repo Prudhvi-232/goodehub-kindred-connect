@@ -1,8 +1,8 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, MessageSquare, Users, MapPin, Clock } from "lucide-react";
 import { useState } from "react";
-import CreatePost from "./CreatePost";
 
 const MainFeed = () => {
   const [likedPosts, setLikedPosts] = useState<number[]>([]);
@@ -90,8 +90,28 @@ const MainFeed = () => {
 
   return (
     <div className="space-y-6">
-      {/* Create Post Component */}
-      <CreatePost />
+      {/* Create Post */}
+      <Card className="p-4">
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center">
+            <span className="text-xl">👩‍💻</span>
+          </div>
+          <Button variant="outline" className="flex-1 justify-start text-gray-500 hover:bg-blue-50">
+            Share your good deed or inspiring story...
+          </Button>
+        </div>
+        <div className="flex justify-between mt-4 pt-4 border-t">
+          <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">
+            📷 Add Photo
+          </Button>
+          <Button variant="ghost" size="sm" className="text-green-600 hover:bg-green-50">
+            🗺️ Add Location
+          </Button>
+          <Button variant="ghost" size="sm" className="text-purple-600 hover:bg-purple-50">
+            🏷️ Add Tags
+          </Button>
+        </div>
+      </Card>
 
       {/* Feed Header */}
       <div className="flex items-center justify-between">

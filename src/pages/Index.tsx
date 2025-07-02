@@ -12,9 +12,6 @@ import MapPage from "../components/MapPage";
 import DonationPage from "../components/DonationPage";
 import FriendsList from "../components/FriendsList";
 import NotificationsList from "../components/NotificationsList";
-import NotificationPopup from "../components/NotificationPopup";
-import SearchComponent from "../components/SearchComponent";
-import FriendsManager from "../components/FriendsManager";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -34,11 +31,9 @@ const Index = () => {
       case "profile":
         return <ProfilePage />;
       case "friends":
-        return <FriendsManager />;
+        return <FriendsList />;
       case "notifications":
         return <NotificationsList />;
-      case "search":
-        return <SearchComponent />;
       case "home":
       default:
         return <MainFeed />;
@@ -48,7 +43,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50">
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-      <NotificationPopup />
       
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
