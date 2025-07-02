@@ -1,10 +1,27 @@
-
-import { Search, MessageSquare, Bell, User, LogOut, Map, Users, UserPlus } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { 
+  Home, 
+  Heart, 
+  Trophy, 
+  MessageCircle, 
+  MapPin, 
+  DollarSign, 
+  Users, 
+  Bell, 
+  User,
+  Search,
+  LogOut 
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
 
 interface NavbarProps {
   activeTab: string;
@@ -12,126 +29,137 @@ interface NavbarProps {
 }
 
 const Navbar = ({ activeTab, setActiveTab }: NavbarProps) => {
-  const { signOut, user } = useAuth();
-  const { toast } = useToast();
+  const { user, signOut } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { id: "home", label: "Home", icon: "🏠" },
-    { id: "help", label: "Help/Donate", icon: "🤝" },
-    { id: "leaderboard", label: "Leaderboard", icon: "🏆" },
-    { id: "donation", label: "Donations", icon: "💝" },
-    { id: "location", label: "Map", icon: "📍" },
+    { id: "home", label: "Home", icon: Home },
+    { id: "search", label: "Search", icon: Search },
+    { id: "help", label: "Help/Donate", icon: Heart },
+    { id: "leaderboard", label: "Leaderboard", icon: Trophy },
+    { id: "location", label: "Map", icon: MapPin },
+    { id: "donation", label: "Donations", icon: DollarSign },
+    { id: "chat", label: "Chat", icon: MessageCircle },
+    { id: "friends", label: "Friends", icon: Users },
+    { id: "notifications", label: "Notifications", icon: Bell },
   ];
 
   const handleSignOut = async () => {
-    try {
-      await signOut();
-      toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
-        variant: "destructive",
-      });
-    }
+    await signOut();
   };
 
   return (
-    <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
+    <nav className="bg-white/90 backdrop-blur-sm shadow-sm border-b sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center space-x-4">
-            <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-              Goodhub
+            <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
+              GoodeHub
             </div>
           </div>
 
-          {/* Navigation Items */}
-          <div className="hidden md:flex items-center space-x-1">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-green-50 ${
-                  activeTab === item.id
-                    ? "text-green-600 bg-green-50"
-                    : "text-gray-600 hover:text-green-600"
-                }`}
-              >
-                <span className="mr-2">{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Search and Actions */}
-          <div className="flex items-center space-x-4">
-            <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Search for help opportunities..."
-                className="pl-10 w-64 bg-gray-50 border-gray-200"
-              />
-            </div>
-            
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => setActiveTab("friends")}
-              className={activeTab === "friends" ? "bg-green-50 text-green-600" : ""}
-            >
-              <Users className="w-5 h-5" />
-            </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => setActiveTab("chat")}
-              className={activeTab === "chat" ? "bg-green-50 text-green-600" : ""}
-            >
-              <MessageSquare className="w-5 h-5" />
-            </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => setActiveTab("notifications")}
-              className={`relative ${activeTab === "notifications" ? "bg-green-50 text-green-600" : ""}`}
-            >
-              <Bell className="w-5 h-5" />
-              <Badge 
-                variant="destructive" 
-                className="absolute -top-1 -right-1 w-5 h-5 text-xs flex items-center justify-center p-0"
-              >
-                3
-              </Badge>
-            </Button>
-            
-            <div className="flex items-center space-x-2">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => setActiveTab("profile")}
-              >
-                <User className="w-5 h-5" />
-              </Button>
-              {user && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleSignOut}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Button
+                  key={item.id}
+                  variant={activeTab === item.id ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setActiveTab(item.id)}
+                  className={`flex items-center space-x-2 ${
+                    activeTab === item.id 
+                      ? "bg-gradient-to-r from-blue-600 to-green-600 text-white" 
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  }`}
                 >
-                  <LogOut className="w-5 h-5" />
+                  <Icon className="w-4 h-4" />
+                  <span className="hidden xl:inline">{item.label}</span>
                 </Button>
-              )}
-            </div>
+              );
+            })}
+          </div>
+
+          {/* User Menu */}
+          <div className="flex items-center space-x-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
+                    <AvatarFallback>
+                      {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <div className="flex items-center justify-start gap-2 p-2">
+                  <div className="flex flex-col space-y-1 leading-none">
+                    <p className="font-medium">{user?.user_metadata?.full_name || "User"}</p>
+                    <p className="w-[200px] truncate text-sm text-muted-foreground">
+                      {user?.email}
+                    </p>
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setActiveTab("profile")}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Mobile menu button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </Button>
           </div>
         </div>
+
+        {/* Mobile Navigation */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden py-4 border-t">
+            <div className="grid grid-cols-2 gap-2">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Button
+                    key={item.id}
+                    variant={activeTab === item.id ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`flex items-center justify-start space-x-2 w-full ${
+                      activeTab === item.id 
+                        ? "bg-gradient-to-r from-blue-600 to-green-600 text-white" 
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

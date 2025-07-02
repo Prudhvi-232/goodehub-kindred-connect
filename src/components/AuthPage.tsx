@@ -1,12 +1,12 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Mail, CheckCircle } from 'lucide-react';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,6 +15,7 @@ const AuthPage = () => {
   const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showVerificationAlert, setShowVerificationAlert] = useState(false);
   
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
@@ -56,10 +57,7 @@ const AuthPage = () => {
             variant: "destructive",
           });
         } else {
-          toast({
-            title: "Account Created!",
-            description: "Please check your email to verify your account.",
-          });
+          setShowVerificationAlert(true);
         }
       }
     } catch (error) {
@@ -72,6 +70,46 @@ const AuthPage = () => {
       setLoading(false);
     }
   };
+
+  if (showVerificationAlert) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md p-8 shadow-xl border-0 bg-white/95 backdrop-blur">
+          <div className="text-center">
+            <div className="mb-6">
+              <Mail className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
+              <p className="text-gray-600">
+                We've sent a verification link to <strong>{email}</strong>
+              </p>
+            </div>
+            
+            <Alert className="mb-6 border-green-200 bg-green-50">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-800">
+                Please check your email and click the verification link to complete your registration.
+                After verification, you'll be automatically redirected to the main page.
+              </AlertDescription>
+            </Alert>
+
+            <div className="space-y-4">
+              <Button
+                onClick={() => setShowVerificationAlert(false)}
+                variant="outline"
+                className="w-full"
+              >
+                Back to Login
+              </Button>
+              
+              <p className="text-sm text-gray-500">
+                Didn't receive the email? Check your spam folder or try signing up again.
+              </p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
@@ -155,6 +193,7 @@ const AuthPage = () => {
               setEmail('');
               setPassword('');
               setFullName('');
+              setShowVerificationAlert(false);
             }}
             className="text-blue-600 hover:text-blue-700 font-semibold mt-1"
           >
